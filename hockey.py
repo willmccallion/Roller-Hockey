@@ -2,6 +2,10 @@ from tournament import Tournament
 TOURNAMENT = Tournament()
 def add():
     name = input("What is the team name: ")
+    if name == "q":
+        return
+    while name in TOURNAMENT.get_teams():
+        name = input("What is the team name: ")
     TOURNAMENT.new_team(name)
 
 def new_game():
@@ -13,10 +17,10 @@ def new_game():
     while away == home or away not in valid_names:
         away = input("Away team: ")
     
-    final_score = input("Final score ({home}-{away})")
+    final_score = input("Final score ({h}-{a})")
     confirm_score = input("Confirm final score: ")
     while final_score != confirm_score:
-        final_score = input("Final score ({home}-{away})")
+        final_score = input("Final score ({h}-{a})")
         confirm_score = input("Confirm final score: ")
     
     home_score = int(final_score.split("-")[0])
@@ -49,6 +53,8 @@ def get_input():
 def main():
     quit = False
     while not quit:
+        print("RANK |" + " "*7 + "NAMES" +" |"+"  W-OTW-OTL-L | GP | PTS |  PCT | GF | GA |  PM |")
+        print("-"*69)
         print(TOURNAMENT)
         quit = get_input()
 
