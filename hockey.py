@@ -1,105 +1,56 @@
-PLAYOFF_NUM = 4
+from tournament import Tournament
+TOURNAMENT = Tournament()
+def add():
+    name = input("What is the team name: ")
+    TOURNAMENT.new_team(name)
 
-class Teams:
-    def __init__(self) -> None:
-        self.all_teams = []
-
-    def _update_ranks(self):
-        for i in range(len(self.all_teams)):
-            if i != len(self.all_teams) - 1:
-                if self.all_teams[i].get_points() < self.all_teams[i+1].get_points():
-                    temp = self.all_teams[i]
-                    self.all_teams[i] = self.all_teams[i+1]
-                    self.all_teams[i+1] = temp
+def new_game():
+    valid_names = TOURNAMENT.get_teams()
+    home = input("Home team: ")
+    while home not in valid_names:
+        home = input("Home team: ")
+    away = input("Away team: ")
+    while away == home or away not in valid_names:
+        away = input("Away team: ")
     
-    def new_team(self, name):
-        self.all_teams.append(Team(name))
-
-    def final(self,home,away,score, ot=False):
-        home_score = score.split("-")[0]
-        away_score = score.split("-")[1]
-
-        for team in self.all_teams:
-            #Home team
-            if team.get_name().lower() == home.lower():
-                team.set_gf(home_score)
-                team.set_ga(away_score)
-                if home_score > away_score:
-                    team.win()
-                elif away_score > home_score and ot:
-                    team.ot_loss()
-                else:
-                    team.loss()
-            #Away team
-            elif team.get_name().lower() == away.lower():
-                team.set_gf(away_score)
-                team.set_ga(home_score)
-                if away_score > home_score:
-                    team.win()
-                elif home_score > away_score and ot:
-                    team.ot_loss()
-                else:
-                    team.loss()
-            
-        self._update_ranks()
+    final_score = input("Final score ({home}-{away})")
+    confirm_score = input("Confirm final score: ")
+    while final_score != confirm_score:
+        final_score = input("Final score ({home}-{away})")
+        confirm_score = input("Confirm final score: ")
     
-    def __str__(self) -> str:
-        s = ""
-        rank = 1
-        for team in self.all_teams:
-            team.set_rank(rank)
+    home_score = int(final_score.split("-")[0])
+    away_score = int(final_score.split("-")[1])
+    overtime = False
+    if home_score + 1 == away_score or home_score == away_score + 1:
+        ot_user = input("Overtime (Y/N): ")
+        while ot_user.lower() not in ['y','n']:
+            ot_user = input("Overtime (Y/N): ")
+        if ot_user.lower() == "y":
+            overtime = True
 
-            s += f"{team}\n"
-            rank += 1
-        return s
-            
-                
-class Team:
-    def __init__(self, name) -> None:
-        self.name = name
-        self.rank = 1
-        self.record = [0,0,0]
-        self.gf = 0
-        self.ga = 0
-        self.pts = 0
+    TOURNAMENT.final(home,away,final_score,overtime)
 
-    def win(self):
-        self.record[0] += 1
-        self.pts += 2
+def get_input():
+    valid = ["add","game","exit"]
+    user_input = input("Add/Game/Exit\n")
     
-    def loss(self):
-        self.record[1] += 1
+    while user_input not in valid:
+        user_input = input("Add/Game/Exit\n")
     
-    def ot_loss(self):
-        self.record[2] += 1
-        self.pts += 1
+    if user_input.lower() == valid[2]:
+        return True
+    elif user_input.lower() == valid[1]:
+        new_game()
+    elif user_input.lower() == valid[0]:
+        add()
+    return False
 
-    def get_name(self):
-        return self.name
+def main():
+    quit = False
+    while not quit:
+        print(TOURNAMENT)
+        quit = get_input()
 
-    def set_gf(self,gf):
-        self.gf += int(gf)
-    
-    def set_ga(self,ga):
-        self.ga += int(ga)
-
-    def get_gf(self):
-        return self.gf
-
-    def get_ga(self):
-        return self.ga
-    
-    def set_rank(self,rank):
-        self.rank = rank
-
-    def get_rank(self):
-        return self.rank
-    
-    def get_points(self):
-        return self.pts
-    
-    def __str__(self) -> str:
-        if self.rank <= PLAYOFF_NUM:
-            return f"Rank: {self.rank:2} | Name: {self.name:>10} |  Record: {self.record[0]}/{self.record[1]}/{self.record[2]} | PTS: {self.pts} | GF: {self.gf} | GA: {self.ga}"
-        else:
-            return f"Rank: {self.rank:2} | Name: {self.name:>10} |  Record: {self.record[0]}/{self.record[1]}/{self.record[2]} | PTS: {self.pts} | GF: {self.gf} | GA: {self.ga}"
+if __name__ == "__main__":
+    main()
